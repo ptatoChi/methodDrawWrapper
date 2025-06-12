@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
+import { MethodDrawComponent } from './method-draw.component';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [MethodDrawComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
