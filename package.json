@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "md:css": "rimraf .tmp-md && mkdirp .tmp-md && postcss ./src/app/lib/Method-Draw/src/css/*.css --config postcss.config.js --dir .tmp-md && type .tmp-md\\*.css > ./src/app/lib/Method-Draw/md-prefixed.css && rimraf .tmp-md"
   },
   "private": true,
   "dependencies": {
@@ -32,6 +33,11 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "postcss": "^8.5.5",
+    "postcss-cli": "^11.0.1",
+    "postcss-combine-duplicated-selectors": "^10.0.3",
+    "postcss-prefix-selector": "^2.1.1",
+    "shx": "^0.4.0",
     "typescript": "~5.7.2"
   }
 }
