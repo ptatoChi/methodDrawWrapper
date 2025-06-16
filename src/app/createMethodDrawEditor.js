@@ -106,7 +106,6 @@ export async function createMethodDrawEditor (container, opts = {}) {
     editor
   };
 
-  /* ---------------- helpers ---------------- */
   function toggleTool(mode, hide){ const b = container.querySelector(`#tools_left .tool_button[data-mode="${mode}"]`); if (b) b.style.display = hide? 'none':''; }
 
   function asset(rel){ const base = (document.querySelector('base')?.getAttribute('href')||'/').replace(/\/$/,''); return `${base}/lib/Method-Draw/src/${rel}`; }
