@@ -256,30 +256,45 @@ svgedit.utilities.bboxToObj = function(bbox) {
 // Parameters:
 // elem - DOM element to traverse
 // cbFn - Callback function to run on each element
-svgedit.utilities.walkTree = function(elem, cbFn){
-  if (elem && elem.nodeType == 1) {
+// Note: The original version used recursion which could overflow the call stack
+// for very large documents (10 k+ nodes).  We now use an explicit stack so the
+// traversal is iterative and memory-safe.  We also rely on `.children` which
+// skips text/comment nodes and is measurably faster in modern browsers.
+svgedit.utilities.walkTree = function(root, cbFn){
+  if (!root || root.nodeType !== 1) return;
+  const stack = [root];
+  while (stack.length) {
+    const elem = stack.pop();
     cbFn(elem);
-    var i = elem.childNodes.length;
-    while (i--) {
-      svgedit.utilities.walkTree(elem.childNodes.item(i), cbFn);
+    const kids = elem.children; // HTMLCollection (live) → iterate backwards for identical order
+    for (let i = kids.length - 1; i >= 0; i--) {
+      stack.push(kids[i]);
     }
   }
 };
 
 // Function: svgedit.utilities.walkTreePost
-// Walks the tree and executes the callback on each element in a depth-first fashion
-// TODO: FIXME: Shouldn't this be calling walkTreePost?
+// Walks the tree and executes the callback on each element in a depth-first
+// post-order fashion (children first, then parent)
 //
 // Parameters:
 // elem - DOM element to traverse
 // cbFn - Callback function to run on each element
-svgedit.utilities.walkTreePost = function(elem, cbFn) {
-  if (elem && elem.nodeType == 1) {
-    var i = elem.childNodes.length;
-    while (i--) {
-      svgedit.utilities.walkTree(elem.childNodes.item(i), cbFn);
+svgedit.utilities.walkTreePost = function(root, cbFn) {
+  if (!root || root.nodeType !== 1) return;
+  const stack = [[root, false]]; // [node, visitedChildren]
+  while (stack.length) {
+    const [node, visited] = stack.pop();
+    if (visited) {
+      cbFn(node);
+      continue;
     }
-    cbFn(elem);
+    // First push the node again flagged as visited, then its children
+    stack.push([node, true]);
+    const kids = node.children;
+    for (let i = kids.length - 1; i >= 0; i--) {
+      stack.push([kids[i], false]);
+    }
   }
 };
 

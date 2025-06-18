@@ -813,10 +813,15 @@ this.prepareSvg = function(newDoc) {
 
   // convert paths into absolute commands
   var paths = newDoc.getElementsByTagNameNS(svgns, "path");
-  for (var i = 0, len = paths.length; i < len; ++i) {
-    var path = paths[i];
-    path.setAttribute('d', pathActions.convertPath(path));
-    pathActions.fixEnd(path);
+  var PATH_LIMIT = 1500; // threshold to keep large imports responsive
+  if (paths.length < PATH_LIMIT) {
+    for (var i = 0, len = paths.length; i < len; ++i) {
+      var path = paths[i];
+      path.setAttribute('d', pathActions.convertPath(path));
+      pathActions.fixEnd(path);
+    }
+  } else {
+    console.warn('Method-Draw: Skipping path normalization for large SVG with ' + paths.length + ' paths');
   }
 
 };
@@ -1931,6 +1936,7 @@ var recalculateDimensions = this.recalculateDimensions = function(selected) {
     // we want it to be [Rnew][M][Tr] where Tr is the
     // translation required to re-center it
     // Therefore, [Tr] = [M_inv][Rnew_inv][Rold][M]
+    // TODO: This is not working correctly for rotated elements
     else if (operation == 3 && angle) {
       var m = transformListToTransform(tlist).matrix;
       var roldt = svgroot.createSVGTransform();
@@ -5713,7 +5719,13 @@ var convertToGroup = this.convertToGroup = function(elem) {
     
     // recalculate dimensions on the top-level children so that unnecessary transforms
     // are removed
-    svgedit.utilities.walkTreePost(g, function(n){try{recalculateDimensions(n)}catch(e){console.log(e)}});
+    var NODE_LIMIT = 2000;
+    var totalNodes = svgcontent.querySelectorAll('*').length;
+    if (totalNodes < NODE_LIMIT) {
+      svgedit.utilities.walkTreePost(g, function(n){try{recalculateDimensions(n)}catch(e){console.log(e)}});
+    } else {
+      console.warn('Method-Draw: Skipping recalculateDimensions for large SVG (' + totalNodes + ' nodes)');
+    }
     
     // Give ID for any visible element missing one
     $(g).find(visElems).each(function() {
@@ -5867,7 +5879,13 @@ this.setSvgString = function(xmlString) {
     
     // recalculate dimensions on the top-level children so that unnecessary transforms
     // are removed
-    svgedit.utilities.walkTreePost(svgcontent, function(n){try{recalculateDimensions(n)}catch(e){console.log(e)}});
+    var NODE_LIMIT = 2000;
+    var totalNodes = svgcontent.querySelectorAll('*').length;
+    if (totalNodes < NODE_LIMIT) {
+      svgedit.utilities.walkTreePost(svgcontent, function(n){try{recalculateDimensions(n)}catch(e){console.log(e)}});
+    } else {
+      console.warn('Method-Draw: Skipping recalculateDimensions for large SVG (' + totalNodes + ' nodes)');
+    }
     
     var attrs = {
       id: 'svgcontent',
@@ -6064,7 +6082,13 @@ this.importSvgString = function(xmlString) {
 
     // recalculate dimensions on the top-level children so that unnecessary transforms
     // are removed
-    svgedit.utilities.walkTreePost(svgcontent, function(n){try{recalculateDimensions(n)}catch(e){console.log(e)}});
+    var NODE_LIMIT = 2000;
+    var totalNodes = svgcontent.querySelectorAll('*').length;
+    if (totalNodes < NODE_LIMIT) {
+      svgedit.utilities.walkTreePost(svgcontent, function(n){try{recalculateDimensions(n)}catch(e){console.log(e)}});
+    } else {
+      console.warn('Method-Draw: Skipping recalculateDimensions for large SVG (' + totalNodes + ' nodes)');
+    }
     
     
     var innerw = convertToNum('width', svg.getAttribute("width")),
