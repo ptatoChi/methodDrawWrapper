@@ -40,16 +40,12 @@ export async function createMethodDrawEditor (container, opts = {}) {
   }
 
   /* ------------------------------------------------------------------
-   * 3 ▸ load JS dependencies (skip loading.js, inject method-draw.js)
+   * 3 ▸ load JS dependencies (skip loading.js)
    * ----------------------------------------------------------------*/
   if (!window.__mdScriptsLoaded) {
     const scripts = Array.from(htmlDoc.querySelectorAll('script[src]'))
       .map(s => s.getAttribute('src'))
       .filter(src => src && src !== 'js/loading.js');
-    if (!scripts.includes('js/method-draw.js')) {
-      const idx = scripts.indexOf('js/svgcanvas.js');
-      scripts.splice(idx + 1, 0, 'js/method-draw.js');
-    }
     for (const rel of scripts) await loadScript(asset(rel));
     window.__mdScriptsLoaded = true;
   }

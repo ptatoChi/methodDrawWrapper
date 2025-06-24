@@ -288,3 +288,27 @@ input[readonly=readonly]:focus {
 .stroke_tool .caret {
   top: 60%;
 }
+
+/* Performance optimization - disable transitions during bulk operations */
+.method-draw-suspend-updates * {
+  transition: none !important;
+  animation: none !important;
+  pointer-events: none !important;
+}
+
+/* Layer rendering optimizations */
+#svgcontent * {
+  transform-style: flat;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Optimize large path rendering */
+path {
+  shape-rendering: optimizeSpeed;
+}
+
+/* Optimize text rendering */
+text {
+  text-rendering: optimizeSpeed;
+}

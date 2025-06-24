@@ -41,6 +41,23 @@ var svgns = "http://www.w3.org/2000/svg",
   htmlns = "http://www.w3.org/1999/xhtml",
   mathns = "http://www.w3.org/1998/Math/MathML";
 
+// Add state management for better Angular integration
+var canvasState = {
+  mode: 'select',
+  zoom: 1,
+  selectedElements: [],
+  currentLayer: null,
+  undoStackSize: 0,
+  redoStackSize: 0
+};
+
+function updateState(changes) {
+  Object.assign(canvasState, changes);
+  if (window.editor && editor.dispatch) {
+    editor.dispatch('state.changed', { ...canvasState });
+  }
+}
+
 // Default configuration options
 var curConfig = {
   show_outside_canvas: true,
@@ -3421,8 +3438,8 @@ var getMouseTarget = this.getMouseTarget = function(evt) {
       if (e.detail > 0) {
         bbox.factor = .5;
       } else if (e.detail < 0) {
-        bbox.factor = 2;      
-      }       
+        bbox.factor = 2;
+      }
     }
     
     if(!bbox.factor) bbox.factor = 1;
