@@ -8,4 +8,5 @@ import { MethodDrawComponent } from './method-draw.component';
 })
 export class AppComponent {
   title = 'mkdraw-wrap';
+  isOpen = true;
 }

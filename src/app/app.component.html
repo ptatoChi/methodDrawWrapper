@@ -1,3 +1,6 @@
 <div class="h-[900px] w-full flex rounded-xl">
+    <button (click)="isOpen = !isOpen">Open</button>
+    @if(isOpen) {
     <method-draw class=" flex-col grow"></method-draw>
+    }
 </div>
