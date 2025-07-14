@@ -37,6 +37,49 @@ export async function createMethodDrawEditor (container, opts = {}) {
     // Blank the canvas so caller starts from a fresh document
     window.svgCanvas.clear();
 
+    // Recompute layout now that the DOM node has a new parent
+    if (window.editor && window.editor.canvas && window.editor.canvas.update) {
+      window.editor.canvas.update(true);
+      requestAnimationFrame(()=>{
+        window.editor.canvas.update(true);
+      });
+    }
+    if (window.editor && window.editor.zoom && window.editor.zoom.reset) {
+      window.editor.zoom.reset();
+    }
+
+    // Force panel context refresh and default mode
+    if (window.state && typeof window.state.set === 'function') {
+      window.state.set('canvasMode', 'select');
+    }
+    if (window.editor && window.editor.panel && window.editor.panel.updateContextPanel) {
+      window.editor.panel.updateContextPanel();
+    }
+
+    if (window.editor && window.editor.toolbar && window.editor.toolbar.setMode) {
+      window.editor.toolbar.setMode('select');
+    }
+
+    if (window.state && typeof window.state.refresh === 'function') {
+      window.state.refresh();
+    }
+
+    // Ensure context panel follows future selections
+    if (!window.__mdRebindDone) {
+      window.svgCanvas.bind('selected', function(_, elems){
+        console.log('[MD wrapper] selected event with elems', elems);
+        if (window.editor && window.editor.panel) {
+          window.editor.panel.updateContextPanel(elems);
+        }
+      });
+      window.svgCanvas.bind('changed', function(){
+        if (window.editor && window.editor.panel) {
+          window.editor.panel.updateContextPanel();
+        }
+      });
+      window.__mdRebindDone = true;
+    }
+
     return buildFacade(container, opts, sizeFix);
   }
 
